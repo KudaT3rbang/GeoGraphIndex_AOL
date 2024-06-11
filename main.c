@@ -2,86 +2,89 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define R 6371
 
-/*Struct Declaration*/
+/* Struct Declaration */
 struct nodeCity {
-    char cityName[30];
-    char cityDescription[100];
-    double cityLat;
-    double cityLon;
-    int continentIndex;
-    int height;
+    char cityName[30], cityDescription[100];
+    double cityLat, cityLon;
+    int continentIndex, height;
     struct nodeCity *left;
     struct nodeCity *right;
 };
 
-struct continentNode {
-    char cityName[30];
-    char cityDescription[100];
-    double cityLat;
-    double cityLon;
-    struct continentNode *next;
+struct nodeContinent {
+    char cityName[30], cityDescription[100];
+    double cityLat, cityLon;
+    struct nodeContinent *next;
 };
 
-struct continentNode *continentList[7] = { 0 };
-
-struct nodeCity *rootByCity = NULL; // Untuk AVL Tree City
-struct nodeCity *rootByCoor = NULL; // Untuk AVL Tree Koordinat
+struct nodeCity *rootByCity = NULL;
+struct nodeCity *rootByCoor = NULL;
 struct nodeCity *recentlySearch = NULL;
 
-/*Function Declaration*/
+struct nodeContinent *continentList[7] = { 0 };
+
+/* Function Declaration */
+// [1] Function For AVL Tree
 int max(int left, int right);
 int getHeight(struct nodeCity *root);
 int getBFactor(struct nodeCity *root);
 struct nodeCity *rightRotate(struct nodeCity *root);
 struct nodeCity *leftRotate(struct nodeCity *root);
 struct nodeCity *newCityNode(double lat, double lon, const char *newCity, const char *cityDescription, int continentIndex);
-struct nodeCity *newCoorNode(double lat, double lon, const char *newCity, const char *cityDescription, int continentIndex);
 struct nodeCity *insertByCoor(struct nodeCity *root, double lat, double lon,
-                              const char *newCity, const char *cityDescription, int continentIndex);
+                              const char *cityName, const char *cityDescription, int continentIndex);
 struct nodeCity *insertByCityName(struct nodeCity *root,
                                   struct nodeCity **rootCoor, double lat,
-                                  double lon, const char *key, const char *cityDescription, int continentIndex);
+                                  double lon, const char *cityName, const char *cityDescription, int continentIndex);
+void insertMenu();
 
+// [2] Function For Sorting and Printing AVL Tree
+const char *getContinentName(int index);
+void displaySortingOptions();
+void printTableHeader();
+void sortByCityName(struct nodeCity *root);
+void sortByCoordinates(struct nodeCity *root);
+void printCityNode(struct nodeCity *node);
 void preorder_viewAllCity(struct nodeCity *root);
 void postorder_viewAllCity(struct nodeCity *root);
 void inorder_viewAllCity(struct nodeCity *root);
-int pushContinentNode(struct continentNode **head, const char *cityName, const char *cityDescription, double lat, double lon);
-void printContinent(struct continentNode *continentList[]);
+void sortMenu();
 
-void insertMenu();
-void pressanykey();
-void recentSearch();
-
-// Math functions
-double deg2rad(double deg);
-double haversine_distance(double lat1, double lon1, double lat2, double lon2);
-
-// Function untuk mencari berdasarkan City Name
-struct nodeCity *search(struct nodeCity *root, char *key);
-// Function untuk mencari berdasarkan koordinat
+// [3] Search Function
+struct nodeCity *search(struct nodeCity *root, char *cityName);
 struct nodeCity *searchCoor(struct nodeCity *root, double lat, double lon);
+void recentSearch();
+void searchMenu(struct nodeCity *root);
 
-int validateTitle(const char *name);
+// [4] Delete Function
+// TBA
 
-// Open/Save
-void writeAvlToFile(struct nodeCity *root, FILE *fp);
+// [5] Function For Array Of Linked List (Continent)
+int pushNodeContinent(struct nodeContinent **head, const char *cityName, const char *cityDescription, double lat, double lon);
+void printContinent(struct nodeContinent *continentList[]);
+
+// [6] Utility Function
+void utilPressAnyKey();
+int utilValidateTitle(const char *name);
+
+// [7] Open/Save Data Function
 struct nodeCity *readAvlFromFile(FILE *fp, struct nodeCity *root);
+void writeAvlToFile(struct nodeCity *root, FILE *fp);
 void openData();
 void saveDataCity();
 void saveDataCoor();
 
+// [8] Distance Checking Function
+double deg2rad(double deg);
+double distanceCheck(double lat1, double lon1, double lat2, double lon2);
+void searchDistanceBetweenCities(struct nodeCity *root);
 
-/*Driver Function*/
+/* Main Function */
 int main(void) {
-
     openData();
-    // openDataCoor();
-    int choice;
     do {
-        int n;
-
+        int choice;
         printf("Welcome to GeoGraphIndex Program\n");
         printf("----------------------\n");
         printf("1. Add a city\n");
@@ -94,307 +97,114 @@ int main(void) {
         printf("----------------------\n");
         printf("Input >> ");
         do {
-            scanf("%d", &n);
+            scanf("%d", &choice);
             getchar();
-        } while (n < 0 || n > 6);
-
-        switch (n) {
-
-            case 1: {
+        } while(choice < 0 || choice > 6);
+        switch(choice) {
+            case 1:
                 insertMenu();
-                pressanykey();
+                utilPressAnyKey();
                 break;
-            }
-
-            case 2: {
-                if (rootByCity == NULL) {
-                    printf("There is no data\n");
-                    pressanykey();
-                    break;
-                }
-                printf("1. Sort based on city name\n2. Sort based on "
-                       "coordinates\n\nInput>> ");
-                scanf("%d", &choice);
-                getchar();
-
-                // sort berdasarkan city name
-                if (choice == 1) {
-                    printf("=======Sort based on city name=======\n");
-                    printf("View in which order?\n1. Preorder Traversal\n2. Inorder "
-                           "Traversal\n3. Postorder Traversal\nInput>> ");
-                    do {
-                        scanf("%d", &choice);
-                        getchar();
-                    } while (choice < 1 || choice > 3);
-
-                    for (int i = 0; i < 94; i++)
-                        printf("-");
-                    printf("\n");
-                    printf("|%-30s|%-30s|%-30s|\n", "City Name", "Latitude", "Longitude");
-                    for (int i = 0; i < 94; i++)
-                        printf("-");
-                    printf("\n");
-                    if (choice == 1)
-                        preorder_viewAllCity(rootByCity);
-                    if (choice == 2)
-                        inorder_viewAllCity(rootByCity);
-                    if (choice == 3)
-                        postorder_viewAllCity(rootByCity);
-                }
-                    // sort berdasarkan coordinates
-                else if (choice == 2) {
-                    printf("==========Sort based on coordinates==========\n");
-                    printf("View in which order?\n1. Preorder Traversal\n2. Inorder "
-                           "Traversal\n3. Postorder Traversal\nInput>> ");
-                    do {
-                        scanf("%d", &choice);
-                        getchar();
-                    } while (choice < 1 || choice > 3);
-
-                    for (int i = 0; i < 94; i++)
-                        printf("-");
-                    printf("\n");
-                    printf("|%-30s|%-30s|%-30s|\n", "City Name", "Latitude", "Longitude");
-                    for (int i = 0; i < 94; i++)
-                        printf("-");
-                    printf("\n");
-                    if (choice == 1)
-                        preorder_viewAllCity(rootByCoor);
-                    if (choice == 2)
-                        inorder_viewAllCity(rootByCoor);
-                    if (choice == 3)
-                        postorder_viewAllCity(rootByCoor);
-                }
-
-                pressanykey();
+            case 2:
+                sortMenu();
                 break;
-            }
-
-            case 3: {
-                int choice;
-                char key[30];
-                printf("Search based on?\n1. City name\n2. Coordinates\n\nInput>> ");
-                do {
-                    scanf("%d", &choice);
-                    getchar();
-                } while (choice < 1 || choice > 2);
-
-                switch (choice) {
-                    case 1: {
-                        recentSearch();
-                        printf("Enter a city name to search: ");
-                        scanf("%30[^\n]", key);
-                        getchar();
-                        struct nodeCity *curr = search(rootByCity, key);
-                        recentlySearch = curr;
-                        if (curr == NULL) {
-                            printf("Data not found!\n");
-                        }
-
-                        else {
-                            for (int i = 0; i < 94; i++)
-                                printf("-");
-                            printf("\n");
-                            printf("|%-30s|%-30s|%-30s|\n", "City Name", "Latitude", "Longitude");
-                            for (int i = 0; i < 94; i++)
-                                printf("-");
-                            printf("\n");
-                            printf("|%-30s|%-30lf|%-30lf|\n", curr->cityName, curr->cityLat,
-                                   curr->cityLon);
-                            for (int i = 0; i < 94; i++)
-                                printf("-");
-                            printf("\n");
-                        }
-
-                        pressanykey();
-                        break;
-                    }
-
-                    case 2: {
-                        recentSearch();
-                        double tlat, tlon;
-                        printf("Enter Latitude: ");
-                        scanf("%lf", &tlat);
-                        getchar();
-                        printf("Enter Longitude: ");
-                        scanf("%lf", &tlon);
-                        getchar();
-                        struct nodeCity *curr = searchCoor(rootByCoor, tlat, tlon);
-                        recentlySearch = curr;
-                        if (curr == NULL) {
-                            printf("City not found!\n");
-                        }
-
-                        else {
-                            for (int i = 0; i < 94; i++)
-                                printf("-");
-                            printf("\n");
-                            printf("|%-30s|%-30s|%-30s|\n", "City Name", "Latitude", "Longitude");
-                            for (int i = 0; i < 94; i++)
-                                printf("-");
-                            printf("\n");
-                            printf("|%-30s|%-30lf|%-30lf|\n", curr->cityName, curr->cityLat,
-                                   curr->cityLon);
-                            for (int i = 0; i < 94; i++)
-                                printf("-");
-                            printf("\n");
-                        }
-                    } break;
-                }
-            }
-
+            case 3:
+                searchMenu(rootByCity);
+                break;
             case 4:
-                // input inorder. delete inorder.
                 break;
-
-            case 5: {
-                char city1[35];
-                char city2[35];
-                printf("====== Search the distance from two cities =====\n");
-                printf("Note: the distance is in kilometres.\n\n");
-                struct nodeCity *curr1;
-                struct nodeCity *curr2;
-
-                do {
-                    printf("Enter city 1:");
-                    scanf("%[^\n]", city1);
-                    getchar();
-                    curr1 = search(rootByCity, city1);
-                    if (curr1 == NULL) {
-                        printf("City not found! Please try again!\n\n");
-                    }
-                } while (curr1 == NULL);
-
-                do {
-                    printf("Enter city 2:");
-                    scanf("%[^\n]", city2);
-                    getchar();
-                    curr2 = search(rootByCity, city2);
-                    if (curr2 == NULL) {
-                        printf("City not found! Please try again!\n\n");
-                    }
-                } while (curr2 == NULL);
-
-                double result = haversine_distance(curr1->cityLat, curr1->cityLon,
-                                                   curr2->cityLat, curr2->cityLon);
-                printf("The distance between %s and %s is %lf\n\n", curr1->cityName,
-                       curr2->cityName, result);
-            }
+            case 5:
+                searchDistanceBetweenCities(rootByCity);
+                break;
             case 6:
                 printContinent(continentList);
                 break;
-
             case 0:
                 saveDataCity();
                 saveDataCoor();
                 return 0;
                 break;
-
-            default: {
-                printf("Invalid input\n");
-            }
+            default:
+                printf("Invalid input!\n");
         }
-    } while (1);
+    } while(1);
 }
 
-/*Function Definitions*/
+/* Function Definition */
+// [1] Function For AVL Tree
 int max(int left, int right) {
-    if (right > left) {
-        return right;
-    } else {
-        return left;
-    }
-}
+    // Returning max value from two parameter
+    return (right > left) ? right : left;
+};
 
 int getHeight(struct nodeCity *root) {
-    if (root == NULL) {
-        return 0;
-    } else {
-        return root->height;
-    }
-}
+    // Returning root height, if root is NULL then return 0
+    return (root == NULL) ? 0 : root->height;
+};
 
 int getBFactor(struct nodeCity *root) {
-    if (root == NULL) {
-        return 0;
-    } else {
-        return getHeight(root->left) - getHeight(root->right);
-    }
-}
+    // Returning B Factor of node, if root is NULL then return 0
+    return (root == NULL) ? 0 : getHeight(root->left) - getHeight(root->right);
+};
 
 struct nodeCity *rightRotate(struct nodeCity *root) {
-    struct nodeCity *newRoot = root->left;
+    struct nodeCity *newRoot = root->left; // Set newRoot node to left child of current root
     struct nodeCity *temp = newRoot->right;
 
+    // Perform rotation
     newRoot->right = root;
     root->left = temp;
 
+    // Update node height
     root->height = max(getHeight(root->left), getHeight(root->right)) + 1;
-    newRoot->height =
-            max(getHeight(newRoot->left), getHeight(newRoot->right)) + 1;
+    newRoot->height = max(getHeight(newRoot->left), getHeight(newRoot->right)) + 1;
 
     return newRoot;
-}
+};
 
 struct nodeCity *leftRotate(struct nodeCity *root) {
-    struct nodeCity *newRoot = root->right;
+    struct nodeCity *newRoot = root->right; // Set newRoot node to right child of current root
     struct nodeCity *temp = newRoot->left;
 
+    // Perform rotation
     newRoot->left = root;
     root->right = temp;
 
+    // Update node height
     root->height = max(getHeight(root->left), getHeight(root->right)) + 1;
-    newRoot->height =
-            max(getHeight(newRoot->left), getHeight(newRoot->right)) + 1;
+    newRoot->height = max(getHeight(newRoot->left), getHeight(newRoot->right)) + 1;
 
     return newRoot;
-}
+};
 
 struct nodeCity *newCityNode(double lat, double lon, const char *newCity, const char *cityDescription, int continentIndex) {
     struct nodeCity *current = (struct nodeCity *)malloc(sizeof(struct nodeCity));
     strcpy(current->cityName, newCity);
     strcpy(current->cityDescription, cityDescription);
-    current->left = NULL;
-    current->right = NULL;
-    current->height = 1;
     current->cityLat = lat;
     current->cityLon = lon;
     current->continentIndex = continentIndex;
-    return current;
-}
-
-struct nodeCity *newCoorNode(double lat, double lon, const char *newCity, const char *cityDescription, int continentIndex) {
-    struct nodeCity *current = (struct nodeCity *)malloc(sizeof(struct nodeCity));
-    strcpy(current->cityName, newCity);
-    strcpy(current->cityDescription, cityDescription);
-    current->left = NULL;
-    current->right = NULL;
     current->height = 1;
-    current->cityLat = lat;
-    current->cityLon = lon;
-    current->continentIndex = continentIndex;
-
+    current->left = current->right = NULL;
     return current;
-}
+};
 
-// Insert node ke AVL Tree Coor
-struct nodeCity *insertByCoor(struct nodeCity *root, double lat, double lon,
-                              const char *newCity, const char *cityDescription, int continentIndex) {
+struct nodeCity *insertByCoor(struct nodeCity *root, double lat, double lon, const char *cityName, const char *cityDescription, int continentIndex) {
     if (root == NULL) {
-        return newCoorNode(lat, lon, newCity, cityDescription, continentIndex);
+        return newCityNode(lat, lon, cityName, cityDescription, continentIndex);
     }
 
     if (lat < root->cityLat || (lat == root->cityLat && lon < root->cityLon)) {
         // Kalau latitude lebih kecil dari latitude current node, atau jika latitude
         // sama tapi longitude lebih kecil dari current node longitude, buat node ke
         // subtree kiri
-        root->left = insertByCoor(root->left, lat, lon, newCity, cityDescription, continentIndex);
+        root->left = insertByCoor(root->left, lat, lon, cityName, cityDescription, continentIndex);
     } else if (lat > root->cityLat ||
                (lat == root->cityLat && lon > root->cityLon)) {
         // Kalau latitude lebih besar dari latitude current node, atau jika latitude
         // sama tapi longitude lebih besar dari current node longitude, buat node ke
         // subtree kanan
-        root->right = insertByCoor(root->right, lat, lon, newCity, cityDescription, continentIndex);
+        root->right = insertByCoor(root->right, lat, lon, cityName, cityDescription, continentIndex);
     } else {
         // Kalau latitude sama dan longitude sama, maka cityName yang baru akan
         // dikebalikan tanpa membuat node baru
@@ -435,107 +245,51 @@ struct nodeCity *insertByCoor(struct nodeCity *root, double lat, double lon,
     }
 
     return root;
-}
+};
 
-// Insert node ke AVL Tree City
 struct nodeCity *insertByCityName(struct nodeCity *root,
                                   struct nodeCity **rootCoor, double lat,
-                                  double lon, const char *key, const char *cityDescription, int continentIndex) {
+                                  double lon, const char *cityName, const char *cityDescription, int continentIndex) {
     /* Insert a new city into the tree */
     if (root == NULL) {
-        root = newCityNode(lat, lon, key, cityDescription, continentIndex);
-        pushContinentNode(&continentList[continentIndex - 1], key, cityDescription, lat, lon);
+        root = newCityNode(lat, lon, cityName, cityDescription, continentIndex);
+        pushNodeContinent(&continentList[continentIndex - 1], cityName, cityDescription, lat, lon);
         // Buat node untuk AVL tree City sekaligus buat node untuk AVL tree Coor
-        *rootCoor = insertByCoor(*rootCoor, lat, lon, key, cityDescription, continentIndex);
-    } else if (strcmp(key, root->cityName) < 0) {
+        *rootCoor = insertByCoor(*rootCoor, lat, lon, cityName, cityDescription, continentIndex);
+    } else if (strcmp(cityName, root->cityName) < 0) {
         root->left = insertByCityName(root->left, rootCoor, lat, lon,
-                                      key, cityDescription, continentIndex); // Insert to the left subtree
+                                      cityName, cityDescription, continentIndex); // Insert to the left subtree
     } else {
         root->right = insertByCityName(root->right, rootCoor, lat, lon,
-                                       key, cityDescription, continentIndex); // Insert to the right subtree
+                                       cityName, cityDescription, continentIndex); // Insert to the right subtree
     }
 
     root->height = max(getHeight(root->left), getHeight(root->right)) + 1;
     int bFactor = getBFactor(root);
 
     // LL Case
-    if (bFactor > 1 && strcmp(key, root->left->cityName) < 0) {
+    if (bFactor > 1 && strcmp(cityName, root->left->cityName) < 0) {
         return rightRotate(root);
     }
     // RR Case
-    if (bFactor < -1 && strcmp(key, root->right->cityName) > 0) {
+    if (bFactor < -1 && strcmp(cityName, root->right->cityName) > 0) {
         return leftRotate(root);
     }
     // LR Case
-    if (bFactor > 1 && strcmp(key, root->left->cityName) > 0) {
+    if (bFactor > 1 && strcmp(cityName, root->left->cityName) > 0) {
         root->left = leftRotate(root->left);
         return rightRotate(root);
     }
     // RL Case
-    if (bFactor < -1 && strcmp(key, root->right->cityName) < 0) {
+    if (bFactor < -1 && strcmp(cityName, root->right->cityName) < 0) {
         root->right = rightRotate(root->right);
         return leftRotate(root);
     }
     return root;
-}
-
-void inorder_viewAllCity(
-        struct nodeCity *root) { // untuk membaca AVL dan menampilkan
-    // data yang ada di dalamnya
-    if (root == NULL)
-        return;
-    inorder_viewAllCity(root->left);
-
-    printf("|%-30s|%-30lf|%-30lf|\n", root->cityName, root->cityLat,
-           root->cityLon);
-    for (int i = 0; i < 94; i++)
-        printf("-");
-    printf("\n");
-
-    inorder_viewAllCity(root->right);
-}
-
-void preorder_viewAllCity(
-        struct nodeCity *root) { // untuk membaca AVL dan menampilkan
-    // data yang ada di dalamnya
-    if (root == NULL)
-        return;
-    printf("|%-30s|%-30lf|%-30lf|\n", root->cityName, root->cityLat,
-           root->cityLon);
-    for (int i = 0; i < 94; i++)
-        printf("-");
-    printf("\n");
-
-    preorder_viewAllCity(root->left);
-
-    preorder_viewAllCity(root->right);
-}
-
-void postorder_viewAllCity(
-        struct nodeCity *root) { // untuk membaca AVL dan menampilkan
-    // data yang ada di dalamnya
-    if (root == NULL)
-        return;
-
-    postorder_viewAllCity(root->left);
-
-    postorder_viewAllCity(root->right);
-
-    printf("|%-30s|%-30lf|%-30lf|\n", root->cityName, root->cityLat,
-           root->cityLon);
-    for (int i = 0; i < 94; i++)
-        printf("-");
-    printf("\n");
-}
-
-int validateTitle(const char *name) {
-    if (strlen(name) < 5 || strlen(name) > 30)
-        return 1;
-    return 0;
-}
+};
 
 void insertMenu() {
-    char key[30], cityDescription[100];
+    char cityName[30], cityDescription[100];
     double lat, lon;
     int continentIndex;
     struct nodeCity *cityNode;
@@ -543,14 +297,14 @@ void insertMenu() {
 
     do {
         printf("Input City Name [5-30]: ");
-        scanf("%30[^\n]%*c", key);
-        cityNode = search(rootByCity, key);
-        if (validateTitle(key)) {
+        scanf("%30[^\n]%*c", cityName);
+        cityNode = search(rootByCity, cityName);
+        if (utilValidateTitle(cityName)) {
             printf("City Name must be between 5 and 30 characters!\n");
         } else if (cityNode != NULL) {
             printf("City Name already exists!\n");
         }
-    } while (validateTitle(key) || cityNode != NULL);
+    } while (utilValidateTitle(cityName) || cityNode != NULL);
 
     printf("Input City Description: ");
     scanf("%100[^\n]%*c", cityDescription);
@@ -585,99 +339,164 @@ void insertMenu() {
         getchar();
     } while (continentIndex < 0 || continentIndex > 5);
 
-    rootByCity = insertByCityName(rootByCity, &rootByCoor, lat, lon, key, cityDescription, continentIndex);
+    rootByCity = insertByCityName(rootByCity, &rootByCoor, lat, lon, cityName, cityDescription, continentIndex);
     printf("City successfully added!\n");
-}
+};
 
-// search dengan city sebagai key
-struct nodeCity *search(struct nodeCity *root, char *key) {
-    if (root == NULL || strcasecmp(root->cityName, key) == 0) {
-        return root;
-    }
-
-    if (strcasecmp(root->cityName, key) < 0) {
-        return search(root->right, key);
-    }
-
-    return search(root->left, key);
-}
-
-struct nodeCity *searchCoor(struct nodeCity *root, double lat, double lon) {
-    /* Cek apabila root = NULL atau koordinat match dengan root, kembalikan root
-    karena nilai koordinat match */
-    if (root == NULL || (lat == root->cityLat && lon == root->cityLon)) {
-        return root;
-    }
-
-    /* Kalau target lattitude lebih besar dari lattitude sekarang atau jika
-    lattitude target sama dengan lattitude sekarang tapi longitude target lebih
-    besar dari longitude sekarang, cari di subtree sebelah kanan */
-    if (lat > root->cityLat || (lat == root->cityLat && lon > root->cityLon)) {
-        return searchCoor(root->right, lat, lon);
-    } else {
-        /* Kalau target lattitude lebih kecil dari lattitude sekarang atau jika
-        lattitude target sama dengan lattitude sekarang tapi longitude target
-        lebih kecil dari longitude sekarang, cari di subtree sebelah kiri */
-        return searchCoor(root->left, lat, lon);
+// [2] Function For Sorting and Printing AVL Tree
+const char *getContinentName(int index) {
+    switch (index) {
+        case 1:
+            return "North America";
+        case 2:
+            return "South America";
+        case 3:
+            return "Europe";
+        case 4:
+            return "Africa";
+        case 5:
+            return "Asia";
+        case 6:
+            return "Australia";
+        case 7:
+            return "Antarctica";
+        default:
+            return "Unknown";
     }
 }
 
-void pressanykey() {
-    printf("Press any key to continue...");
-    getchar();
-    system("cls");
+void displaySortingOptions() {
+    printf("View in which order?\n1. Preorder Traversal\n2. Inorder Traversal\n3. Postorder Traversal\nInput>> ");
 }
 
-// preorder
-void writeAvlToFile(struct nodeCity *root, FILE *fp) {
+void printTableHeader() {
+    for (int i = 0; i < 126; i++) printf("-");
+    printf("\n");
+    printf("|%-30s|%-30s|%-20s|%-20s|%-20s|\n", "City Name", "City Description", "Latitude", "Longitude", "Continent");
+    for (int i = 0; i < 126; i++) printf("-");
+    printf("\n");
+}
+
+void sortByCityName(struct nodeCity *root) {
+    printf("=======Sort based on city name=======\n");
+    displaySortingOptions();
+
+    int choice;
+    do {
+        scanf("%d", &choice);
+        getchar();
+    } while (choice < 1 || choice > 3);
+
+    printTableHeader();
+
+    if (choice == 1)
+        preorder_viewAllCity(root);
+    else if (choice == 2)
+        inorder_viewAllCity(root);
+    else if (choice == 3)
+        postorder_viewAllCity(root);
+};
+
+void sortByCoordinates(struct nodeCity *root) {
+    printf("==========Sort based on coordinates==========\n");
+    displaySortingOptions();
+
+    int choice;
+    do {
+        scanf("%d", &choice);
+        getchar();
+    } while (choice < 1 || choice > 3);
+
+    printTableHeader();
+
+    if (choice == 1)
+        preorder_viewAllCity(root);
+    else if (choice == 2)
+        inorder_viewAllCity(root);
+    else if (choice == 3)
+        postorder_viewAllCity(root);
+};
+
+void printCityNode(struct nodeCity *node) {
+    printf("|%-30s|%-30s|%-20.6f|%-20.6f|%-20s|\n", node->cityName, node->cityDescription, node->cityLat, node->cityLon, getContinentName(node->continentIndex));
+    for (int i = 0; i < 126; i++) {
+        printf("-");
+    }
+    printf("\n");
+}
+
+void preorder_viewAllCity(struct nodeCity *root) {
     if (root == NULL) {
         return;
     }
-    fprintf(fp, "%lf,%lf,%s,%s,%d\n", root->cityLat, root->cityLon, root->cityName, root->cityDescription, root->continentIndex);
-    writeAvlToFile(root->left, fp);
-    writeAvlToFile(root->right, fp);
+    printCityNode(root);
+    preorder_viewAllCity(root->left);
+    preorder_viewAllCity(root->right);
 }
 
-struct nodeCity *readAvlFromFile(FILE *fp, struct nodeCity *root) {
-    double lat, lon;
-    char cityName[30], cityDescription[100];
-    int continentIndex;
-    while (fscanf(fp, "%lf,%lf,%29[^,],%99[^,],%d\n", &lat, &lon, cityName, cityDescription, &continentIndex) != EOF) {
-        root = insertByCityName(root, &rootByCoor, lat, lon, cityName, cityDescription, continentIndex);
-    }
-    return root;
-}
-
-void openData() {
-    FILE *fp = fopen("data_city.txt", "r");
-    if (fp == NULL) {
-        printf("Error opening file!\n");
+void postorder_viewAllCity(struct nodeCity *root) {
+    if (root == NULL) {
         return;
     }
-    rootByCity = readAvlFromFile(fp, rootByCity);
-    fclose(fp);
+    postorder_viewAllCity(root->left);
+    postorder_viewAllCity(root->right);
+    printCityNode(root);
 }
 
-void saveDataCoor() {
-    FILE *fp = fopen("data_coor.txt", "w");
-    if (fp == NULL) {
-        printf("Error opening file!\n");
+void inorder_viewAllCity(struct nodeCity *root) {
+    if (root == NULL) {
         return;
     }
-    writeAvlToFile(rootByCoor, fp);
-    fclose(fp);
-    printf("Data Saved!");
+    inorder_viewAllCity(root->left);
+    printCityNode(root);
+    inorder_viewAllCity(root->right);
 }
 
-void saveDataCity() {
-    FILE *fp = fopen("data_city.txt", "w");
-    if (fp == NULL) {
-        printf("Error opening file!\n");
+void sortMenu() {
+    int n;
+    if(rootByCity == NULL) {
+        printf("There is no data!\n");
+        utilPressAnyKey();
         return;
     }
-    writeAvlToFile(rootByCity, fp);
-    fclose(fp);
-    printf("Data Saved!");
+
+    printf("1. Sort based on city name\n2. Sort based on coordinates\n\nInput>> ");
+    scanf("%d", &n);
+    getchar();
+    if (n == 1) {
+        sortByCityName(rootByCity);
+    } else if (n == 2) {
+        sortByCoordinates(rootByCoor);
+    } else {
+        printf("Invalid choice!\n");
+    }
+
+    utilPressAnyKey();
+};
+
+// [3] Search Function
+struct nodeCity *search(struct nodeCity *root, char *cityName) {
+    if (root == NULL || strcasecmp(root->cityName, cityName) == 0) return root;
+
+    if (strcasecmp(root->cityName, cityName) < 0) return search(root->right, cityName);
+
+    return search(root->left, cityName);
+};
+
+struct nodeCity *searchCoor(struct nodeCity *root, double lat, double lon) {
+    if (root == NULL || (lat == root->cityLat && lon == root->cityLon)) return root;
+
+    if (lat > root->cityLat || (lat == root->cityLat && lon > root->cityLon)) {
+        return searchCoor(root->right, lat, lon);
+    } else {
+        return searchCoor(root->left, lat, lon);
+    }
+};
+
+void displayCityDetails(struct nodeCity *city) {
+    printf("City details:\n");
+    printf("|%-30s|%-30s|%-30s|%-10s|%-30s|\n", "City Name", "Latitude", "Longitude", "Continent", "Description");
+    printf("|%-30s|%-30lf|%-30lf|%-10d|%-30s|\n", city->cityName, city->cityLat, city->cityLon, city->continentIndex, city->cityDescription);
 }
 
 void recentSearch() {
@@ -686,10 +505,62 @@ void recentSearch() {
     } else {
         printf("Recent Search : %s (%f, %f)\n", recentlySearch->cityName, recentlySearch->cityLat, recentlySearch->cityLon);
     }
+};
+
+void searchMenu(struct nodeCity *root) {
+    int choice;
+    char key[30];
+    double lat, lon;
+
+    printf("Search based on?\n1. City name\n2. Coordinates\n\nInput>> ");
+    do {
+        scanf("%d", &choice);
+        getchar();
+    } while (choice < 1 || choice > 2);
+
+    switch (choice) {
+        case 1: {
+            printf("Enter a city name to search: ");
+            scanf("%29[^\n]", key);
+            getchar();
+            struct nodeCity *curr = search(root, key);
+            recentlySearch = curr;
+            if (curr == NULL) {
+                printf("Data not found!\n");
+            } else {
+                displayCityDetails(curr);
+            }
+            break;
+        }
+        case 2: {
+            printf("Enter Latitude: ");
+            scanf("%lf", &lat);
+            getchar();
+            printf("Enter Longitude: ");
+            scanf("%lf", &lon);
+            getchar();
+            struct nodeCity *curr = searchCoor(root, lat, lon);
+            recentlySearch = curr;
+            if (curr == NULL) {
+                printf("City not found!\n");
+            } else {
+                // Display the search result
+                displayCityDetails(curr);
+            }
+            break;
+        }
+        default:
+            printf("Invalid choice!\n");
+    }
+    utilPressAnyKey();
 }
 
-int pushContinentNode(struct continentNode **head, const char *cityName, const char *cityDescription, double lat, double lon) {
-    struct continentNode *newNode = malloc(sizeof(struct continentNode));
+// [4] Delete Function
+// TBA
+
+// [5] Function For Array Of Linked List (Continent)
+int pushNodeContinent(struct nodeContinent **head, const char *cityName, const char *cityDescription, double lat, double lon) {
+    struct nodeContinent *newNode = malloc(sizeof(struct nodeContinent));
     if (newNode == NULL) {
         printf("Memory allocation failed\n");
         return -1;
@@ -701,9 +572,9 @@ int pushContinentNode(struct continentNode **head, const char *cityName, const c
     newNode->next = *head;
     *head = newNode;
     return 0;
-}
+};
 
-void printContinent(struct continentNode *continentList[]) {
+void printContinent(struct nodeContinent *continentList[]) {
     int continentIndex;
     const char *continentNames[] = {"North America", "South America", "Europe", "Africa", "Asia", "Australia", "Antarctica"};
 
@@ -722,22 +593,93 @@ void printContinent(struct continentNode *continentList[]) {
 
     printf("Cities in %s:\n", continentNames[continentIndex - 1]);
 
-    struct continentNode *current = continentList[continentIndex - 1];
+    // Print table header
+    for (int i = 0; i < 103; i++) printf("-");
+    printf("\n");
+    printf("| %-30s | %-30s | %-15s | %-15s |\n", "City Name", "City Description", "Latitude", "Longitude");
+    for (int i = 0; i < 103; i++) printf("-");
+    printf("\n");
+
+    struct nodeContinent *current = continentList[continentIndex - 1];
     while (current != NULL) {
-        printf("City Name: %s\n", current->cityName);
-        printf("City Description: %s\n", current->cityDescription);
-        printf("Latitude: %lf\n", current->cityLat);
-        printf("Longitude: %lf\n", current->cityLon);
-        printf("----------------------\n");
+        printf("| %-30s | %-30s | %-15.6f | %-15.6f |\n", current->cityName, current->cityDescription, current->cityLat, current->cityLon);
         current = current->next;
     }
+
+    // Print table footer
+    for (int i = 0; i < 103; i++) printf("-");
+    printf("\n");
+};
+
+// [6] Utility Function
+void utilPressAnyKey() {
+    printf("Press any key to continue...");
+    getchar();
+    system("cls");
+};
+
+int utilValidateTitle(const char *name) {
+    return (strlen(name) < 5 || strlen(name) > 30) ? 1 : 0;
+};
+
+// [7] Open/Save Data Function
+struct nodeCity *readAvlFromFile(FILE *fp, struct nodeCity *root) {
+    double lat, lon;
+    char cityName[30], cityDescription[100];
+    int continentIndex;
+    while (fscanf(fp, "%lf,%lf,%29[^,],%99[^,],%d\n", &lat, &lon, cityName, cityDescription, &continentIndex) != EOF) {
+        root = insertByCityName(root, &rootByCoor, lat, lon, cityName, cityDescription, continentIndex);
+    }
+    return root;
+};
+
+void writeAvlToFile(struct nodeCity *root, FILE *fp) {
+    if (root == NULL) {
+        return;
+    }
+    fprintf(fp, "%lf,%lf,%s,%s,%d\n", root->cityLat, root->cityLon, root->cityName, root->cityDescription, root->continentIndex);
+    writeAvlToFile(root->left, fp);
+    writeAvlToFile(root->right, fp);
+};
+
+void openData() {
+    FILE *fp = fopen("data_city.txt", "r");
+    if (fp == NULL) {
+        printf("No file found!\n");
+        return;
+    }
+    rootByCity = readAvlFromFile(fp, rootByCity);
+    fclose(fp);
+};
+
+void saveDataCity() {
+    FILE *fp = fopen("data_coor.txt", "w");
+    if (fp == NULL) {
+        printf("Failed to save data!\n");
+        return;
+    }
+    writeAvlToFile(rootByCoor, fp);
+    fclose(fp);
+    printf("City AVL Tree Saved\n");
+};
+
+void saveDataCoor() {
+    FILE *fp = fopen("data_city.txt", "w");
+    if (fp == NULL) {
+        printf("Failed to save data!\n");
+        return;
+    }
+    writeAvlToFile(rootByCity, fp);
+    fclose(fp);
+    printf("Coordinates AVL Tree Saved\n");
+};
+
+// [8] Distance Checking Function
+double deg2rad(double deg) {
+    return deg * (M_PI / 180);
 }
 
-// math functions
-
-double deg2rad(double deg) { return deg * (M_PI / 180); }
-
-double haversine_distance(double lat1, double lon1, double lat2, double lon2) {
+double distanceCheck(double lat1, double lon1, double lat2, double lon2) {
     lat1 = deg2rad(lat1);
     lon1 = deg2rad(lon1);
     lat2 = deg2rad(lat2);
@@ -745,4 +687,36 @@ double haversine_distance(double lat1, double lon1, double lat2, double lon2) {
     return acos(sin(lat1) * sin(lat2) +
                 cos(lat1) * cos(lat2) * cos(lon2 - lon1)) *
            6371;
+}
+
+void searchDistanceBetweenCities(struct nodeCity *root) {
+    char city1[35], city2[35];
+    printf("====== Search the distance between two cities =====\n");
+    printf("Note: the distance is in kilometres.\n\n");
+
+    struct nodeCity *curr1, *curr2;
+
+    do {
+        printf("Enter city 1: ");
+        scanf("%34[^\n]", city1);
+        getchar();
+        curr1 = search(rootByCity, city1);
+        if (curr1 == NULL) {
+            printf("City not found! Please try again.\n\n");
+        }
+    } while (curr1 == NULL);
+
+    do {
+        printf("Enter city 2: ");
+        scanf("%34[^\n]", city2);
+        getchar();
+        curr2 = search(rootByCity, city2);
+        if (curr2 == NULL) {
+            printf("City not found! Please try again.\n\n");
+        }
+    } while (curr2 == NULL);
+
+    // Calculate and display the distance
+    double result = distanceCheck(curr1->cityLat, curr1->cityLon, curr2->cityLat, curr2->cityLon);
+    printf("The distance between %s and %s is %.2lf kilometers.\n\n", curr1->cityName, curr2->cityName, result);
 }

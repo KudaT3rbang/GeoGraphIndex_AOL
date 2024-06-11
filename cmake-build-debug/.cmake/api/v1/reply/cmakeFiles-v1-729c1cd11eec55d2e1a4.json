@@ -439,8 +439,8 @@
 	"kind" : "cmakeFiles",
 	"paths" : 
 	{
-		"build" : "G:/AOL Data Struct TUI/cmake-build-debug",
-		"source" : "G:/AOL Data Struct TUI"
+		"build" : "G:/GeograpIndex AOL/GeoGraphIndex_AOL/cmake-build-debug",
+		"source" : "G:/GeograpIndex AOL/GeoGraphIndex_AOL"
 	},
 	"version" : 
 	{

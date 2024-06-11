@@ -42,7 +42,7 @@ rule CUSTOM_COMMAND
 # Rule for re-running cmake.
 
 rule RERUN_CMAKE
-  command = C:\Users\Nathan\AppData\Local\Programs\CLion\bin\cmake\win\x64\bin\cmake.exe --regenerate-during-build -S"G:\AOL Data Struct TUI" -B"G:\AOL Data Struct TUI\cmake-build-debug"
+  command = C:\Users\Nathan\AppData\Local\Programs\CLion\bin\cmake\win\x64\bin\cmake.exe --regenerate-during-build -S"G:\GeograpIndex AOL\GeoGraphIndex_AOL" -B"G:\GeograpIndex AOL\GeoGraphIndex_AOL\cmake-build-debug"
   description = Re-running CMake...
   generator = 1
 

@@ -11,7 +11,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "G:/AOL Data Struct TUI/cmake-build-debug"
+			"value" : "G:/GeograpIndex AOL/GeoGraphIndex_AOL/cmake-build-debug"
 		},
 		{
 			"name" : "AOL_Data_Struct_TUI_IS_TOP_LEVEL",
@@ -35,7 +35,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "G:/AOL Data Struct TUI"
+			"value" : "G:/GeograpIndex AOL/GeoGraphIndex_AOL"
 		},
 		{
 			"name" : "CMAKE_ADDR2LINE",
@@ -91,7 +91,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "g:/AOL Data Struct TUI/cmake-build-debug"
+			"value" : "g:/GeograpIndex AOL/GeoGraphIndex_AOL/cmake-build-debug"
 		},
 		{
 			"name" : "CMAKE_CACHE_MAJOR_VERSION",
@@ -467,7 +467,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "G:/AOL Data Struct TUI/cmake-build-debug/CMakeFiles/pkgRedirects"
+			"value" : "G:/GeograpIndex AOL/GeoGraphIndex_AOL/cmake-build-debug/CMakeFiles/pkgRedirects"
 		},
 		{
 			"name" : "CMAKE_GENERATOR",
@@ -539,7 +539,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "G:/AOL Data Struct TUI"
+			"value" : "G:/GeograpIndex AOL/GeoGraphIndex_AOL"
 		},
 		{
 			"name" : "CMAKE_INSTALL_PREFIX",
