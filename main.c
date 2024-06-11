@@ -520,6 +520,7 @@ void searchMenu(struct nodeCity *root) {
 
     switch (choice) {
         case 1: {
+            recentSearch();
             printf("Enter a city name to search: ");
             scanf("%29[^\n]", key);
             getchar();
@@ -533,6 +534,7 @@ void searchMenu(struct nodeCity *root) {
             break;
         }
         case 2: {
+            recentSearch();
             printf("Enter Latitude: ");
             scanf("%lf", &lat);
             getchar();
