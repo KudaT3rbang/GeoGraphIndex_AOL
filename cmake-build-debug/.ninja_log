@@ -1,9 +1,6 @@
 # ninja log v5
-0	353	7397852435814969	CMakeFiles/AOL_Data_Struct_TUI.dir/main.c.obj	354f9d528caf8dfa
-2	154	7397852865914821	CMakeFiles/AOL_Data_Struct_TUI.dir/main.c.obj	354f9d528caf8dfa
-4	255	7397860052474936	CMakeFiles/AOL_Data_Struct_TUI.dir/main.c.obj	354f9d528caf8dfa
-255	398	7397860053891423	AOL_Data_Struct_TUI.exe	58e5f1ff9ac05176
-3	208	7397866027015623	CMakeFiles/AOL_Data_Struct_TUI.dir/main.c.obj	354f9d528caf8dfa
-209	365	7397866028521595	AOL_Data_Struct_TUI.exe	58e5f1ff9ac05176
-3	769	7397888214070847	CMakeFiles/AOL_Data_Struct_TUI.dir/main.c.obj	354f9d528caf8dfa
-769	1065	7397888217142627	AOL_Data_Struct_TUI.exe	58e5f1ff9ac05176
+1	1086	7398071707321006	build.ninja	82801f3b3f3e68d7
+2	390	7398059523293454	CMakeFiles/AOL_Data_Struct_TUI.dir/main.c.obj	354f9d528caf8dfa
+391	637	7398059525926588	AOL_Data_Struct_TUI.exe	58e5f1ff9ac05176
+3	4708	7401393506279061	CMakeFiles/AOL_Data_Struct_TUI.dir/main.c.obj	354f9d528caf8dfa
+4708	5166	7401393510826895	AOL_Data_Struct_TUI.exe	58e5f1ff9ac05176

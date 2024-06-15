@@ -1,0 +1,48 @@
+29.760427,-95.369804,Houston,City in Texas,1
+-12.046373,-77.042793,Lima,Capital city with rich history,2
+-31.950527,115.860457,Perth,City known for its beaches and sunshine,6
+-34.603722,-58.381592,Buenos Aires,City known for tango and European-style architecture,2
+-34.928499,138.600746,Adelaide,City with festivals and food culture,6
+-37.813629,144.963058,Melbourne,City known for its arts and culture,6
+-33.448891,-70.669266,Santiago,City with the Andes Mountains backdrop,2
+-33.868820,151.209296,Sydney,Home to the Sydney Opera House,6
+-26.204103,28.047305,Johannesburg,City with a rich history in South Africa,4
+-27.469770,153.025124,Brisbane,City with a vibrant outdoor lifestyle,6
+-22.906847,-43.172897,Rio de Janeiro,City with the Christ the Redeemer statue,2
+-23.550520,-46.633308,Sao Paulo,City with the iconic Paulista Avenue,2
+13.756331,100.501762,Bangkok,City known for vibrant street life and temples,5
+3.139003,101.686855,Kuala Lumpur,City with the Petronas Towers,5
+-1.292066,36.821945,Nairobi,Capital city known for Nairobi National Park,4
+1.352083,103.819839,Singapore,City with Marina Bay Sands,5
+6.524379,3.379206,Lagos,Most populous city in Nigeria,4
+25.761680,-80.191790,Miami,City with beautiful beaches,1
+22.396428,114.109497,Hong Kong,City with a vibrant financial center,5
+19.432608,-99.133209,Mexico City,City with rich cultural history,1
+28.613939,77.209023,Delhi,Capital city with historic Red Fort,5
+28.538336,-81.379234,Orlando,Home to Walt Disney World,1
+41.878113,-87.629799,Chicago,The Windy City renowned for its bold architecture,1
+35.227085,-80.843124,Charlotte,City in North Carolina,1
+32.776665,-96.796989,Dallas,City known for its modern architecture,1
+31.230391,121.473701,Shanghai,City with the Bund waterfront,5
+30.044420,31.235712,Cairo,Home to the pyramids and the Sphinx,4
+32.715736,-117.161087,San Diego,City with beautiful coastlines,1
+33.749001,-84.387985,Atlanta,City in Georgia,1
+33.573110,-7.589843,Casablanca,City made famous by the movie of the same name,4
+34.052235,-118.243683,Los Angeles,The entertainment capital of the world,1
+39.904202,116.407394,Beijing,City with the Great Wall,5
+36.778259,-119.417931,San Francisco,Home to the Golden Gate Bridge,1
+35.689487,139.691711,Tokyo,City of futuristic technology,5
+37.774929,-122.419418,San Francisco,Home to the Golden Gate Bridge,1
+40.712776,-74.005974,New York City,The bustling metropolis,1
+40.416775,-3.703790,Madrid,City with the Royal Palace,3
+41.385064,2.173404,Barcelona,City with Gaudí's architectural works,3
+45.501690,-73.567253,Montreal,City known for its French heritage and culture,1
+45.465422,9.185924,Milan,City known for fashion and design,3
+41.902782,12.496366,Rome,Home to the Colosseum,3
+51.507351,-0.127758,London,Home of the Big Ben,3
+48.856613,2.352222,Paris,City of Light and Eiffel Tower,3
+47.606209,-122.332069,Seattle,City with the Space Needle,1
+49.282729,-123.120738,Vancouver,City surrounded by mountains and ocean,1
+55.755825,37.617298,Moscow,Home to the Kremlin,3
+52.229676,21.012229,Warsaw,City with a resilient history,3
+59.329323,18.068581,Stockholm,City spread across 14 islands,3
