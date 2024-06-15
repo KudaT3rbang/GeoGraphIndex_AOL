@@ -676,11 +676,12 @@ void recentSearch() {
     if(recentlySearch == NULL) {
         return;
     } else {
-        printf("Recent Search : %s (%f, %f)\n", recentlySearch->cityName, recentlySearch->cityLat, recentlySearch->cityLon);
+        printf("Recent Search %s (%f, %f)\n", recentlySearch->cityName, recentlySearch->cityLat, recentlySearch->cityLon);
     }
 };
 
 void displayCityDetails(struct nodeCity* city) {
+    recentlySearch = city;
     if (city == NULL) {
         printf("City not found!\n");
     } else {
@@ -704,6 +705,7 @@ struct nodeCity *searchCityMenu() {
         system("cls");
         printf("%s=======%s view worker %s=======\n\n%s", blu, reset, blu, reset);
         printf(yel);
+        recentSearch();
         printf("Input a prefix to be searched: %s\n", pref);
         printf(reset);
 
@@ -729,7 +731,7 @@ struct nodeCity *searchCityMenu() {
         return curr;
     } else {
         printf("City not found!\n");
-        return curr;
+        return NULL;
     }
 }
 
@@ -1123,29 +1125,29 @@ void searchDistanceBetweenCities(struct nodeCity *root) {
 void updateCityDescription() {
     struct nodeCity* cityByName = searchCityMenu();
     if (cityByName == NULL) {
-        printf("City not found!\n");
+        utilPressAnyKey();
         return;
+    } else {
+        struct nodeCity* cityByCoor = searchCoor(rootByCoor, cityByName->cityLat, cityByName->cityLon);
+        if (cityByCoor == NULL) {
+            printf("City not found in coordinate-based tree!\n");
+            return;
+        }
+
+        printf("\nEnter new description for %s: ", cityByName->cityName);
+        char newDescription[100];
+        fgets(newDescription, sizeof(newDescription), stdin);
+        size_t len = strlen(newDescription);
+        if (len > 0 && newDescription[len - 1] == '\n') {
+            newDescription[len - 1] = '\0';
+        }
+
+        strncpy(cityByName->cityDescription, newDescription, sizeof(cityByName->cityDescription) - 1);
+        cityByName->cityDescription[sizeof(cityByName->cityDescription) - 1] = '\0';
+
+        strncpy(cityByCoor->cityDescription, newDescription, sizeof(cityByCoor->cityDescription) - 1);
+        cityByCoor->cityDescription[sizeof(cityByCoor->cityDescription) - 1] = '\0';
+
+        printf("City description updated successfully!\n");
     }
-
-    struct nodeCity* cityByCoor = searchCoor(rootByCoor, cityByName->cityLat, cityByName->cityLon);
-    if (cityByCoor == NULL) {
-        printf("City not found in coordinate-based tree!\n");
-        return;
-    }
-
-    printf("\nEnter new description for %s: ", cityByName->cityName);
-    char newDescription[100];
-    fgets(newDescription, sizeof(newDescription), stdin);
-    size_t len = strlen(newDescription);
-    if (len > 0 && newDescription[len - 1] == '\n') {
-        newDescription[len - 1] = '\0';
-    }
-
-    strncpy(cityByName->cityDescription, newDescription, sizeof(cityByName->cityDescription) - 1);
-    cityByName->cityDescription[sizeof(cityByName->cityDescription) - 1] = '\0';
-
-    strncpy(cityByCoor->cityDescription, newDescription, sizeof(cityByCoor->cityDescription) - 1);
-    cityByCoor->cityDescription[sizeof(cityByCoor->cityDescription) - 1] = '\0';
-
-    printf("City description updated successfully!\n");
 }
