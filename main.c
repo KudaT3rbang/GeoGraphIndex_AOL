@@ -535,11 +535,18 @@ void insertMenu() {
     struct nodeCity *coorNode;
 
     do {
-        printf(yel"Input City Name [5-30]: "reset);
-        scanf("%30[^\n]%*c", cityName);
+        printf(yel"Input City Name [1-30]: "reset);
+        if (fgets(cityName, sizeof(cityName), stdin) == NULL) {
+            fprintf(stderr, "Error reading city name.\n");
+            return;
+        }
+        size_t len = strlen(cityName);
+        if (len > 0 && cityName[len - 1] == '\n') {
+            cityName[len - 1] = '\0';
+        }
         cityNode = search(rootByCity, cityName);
         if (utilValidateTitle(cityName)) {
-            printf(red"City Name must be between 5 and 30 characters!\n\n"reset);
+            printf(red"City Name must be between 1 and 30 characters!\n\n"reset);
         } else if (cityNode != NULL) {
             printf(red"City Name already exists!\n\n"reset);
         }
@@ -1072,6 +1079,7 @@ void deleteMenu() {
     int choice;
     char cityName[30];
     double lat, lon;
+    struct nodeCity *temp = NULL;
 
     printf("%s=====%s Delete a city %s=====%s\n\n", blu, reset, blu, reset);
     printf("%sDelete based on?%s\n1. City name\n2. Coordinates\n\n%sInput>>%s ", yel, reset, mag, reset);
@@ -1085,8 +1093,15 @@ void deleteMenu() {
             printf(yel"Enter a city name to delete: "reset);
             scanf("%29[^\n]", cityName);
             getchar();
-            rootByCity = deleteNodeByCity(rootByCity, cityName);
-            rootByCoor = deleteNodeByCoor(rootByCoor, rootByCity->cityLat, rootByCity->cityLon);
+            struct nodeCity *nodeByName = search(rootByCity, cityName);
+            if (nodeByName) {
+                rootByCity = deleteNodeByCity(rootByCity, cityName);
+                rootByCoor = deleteNodeByCoor(rootByCoor, nodeByName->cityLat, nodeByName->cityLon);
+                NumberOfCities--;
+                printf(yel"\n\nCity successfully deleted!\n"reset);
+            } else {
+                printf(red"\n\nCity not found!\n"reset);
+            }
             break;
         case 2:
             printf(yel"Enter Latitude: "reset);
@@ -1095,14 +1110,20 @@ void deleteMenu() {
             printf(yel"Enter Longitude: "reset);
             scanf("%lf", &lon);
             getchar();
-            rootByCoor = deleteNodeByCoor(rootByCoor, lat, lon);
-            rootByCity = deleteNodeByCity(rootByCity, rootByCoor->cityName);
+            struct nodeCity *nodeByCoor = searchCoor(rootByCoor, lat, lon);
+            if (nodeByCoor) {
+                rootByCoor = deleteNodeByCoor(rootByCoor, lat, lon);
+                rootByCity = deleteNodeByCity(rootByCity, nodeByCoor->cityName);
+                NumberOfCities--;
+                printf(yel"\n\nCity successfully deleted!\n"reset);
+            } else {
+                printf(red"\n\nCity not found!\n"reset);
+            }
             break;
         default:
             printf(red"Invalid choice!\n\n"reset);
     }
     NumberOfCities--;
-    printf(yel"\n\nCity successfully deleted!\n"reset);
     utilPressAnyKey();
 }
 
@@ -1175,7 +1196,7 @@ void utilPressAnyKey() {
 };
 
 int utilValidateTitle(const char *name) {
-    return (strlen(name) < 5 || strlen(name) > 30) ? 1 : 0;
+    return (strlen(name) < 1 || strlen(name) > 30) ? 1 : 0;
 };
 
 void utilTrimTrailingSpaces(char *str) {
