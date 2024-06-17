@@ -4,31 +4,12 @@
 #include <string.h>
 #include <conio.h>
 #include <ctype.h>
-#include <stdio.h>
 #define M_PI 3.14159265358979323846
-
-// Check OS and include appropriate headers
-#ifdef _WIN32
+#include <windows.h>
+#undef max
 #include <conio.h> // For Windows
-#else
-#include <termios.h> // For Unix-like systems (Linux, macOS)
-    #include <unistd.h>
 
-// Function to mimic getch() on Unix-like systems
-int getch(void) {
-    struct termios oldattr, newattr;
-    int ch;
-    tcgetattr(STDIN_FILENO, &oldattr);
-    newattr = oldattr;
-    newattr.c_lflag &= ~(ICANON | ECHO);
-    tcsetattr(STDIN_FILENO, TCSANOW, &newattr);
-    ch = getchar();
-    tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);
-    return ch;
-}
-#endif
-
-
+// COLORS
 #define red   "\x1B[31m"
 #define grn   "\x1B[32m"
 #define yel   "\x1B[33m"
@@ -38,6 +19,7 @@ int getch(void) {
 #define wht   "\x1B[37m"
 #define reset "\x1B[0m"
 
+#define EARTH_RADIUS 6371.0 // Earth's radius in kilometers
 
 /* Struct Declaration */
 struct nodeCity {
@@ -125,22 +107,14 @@ void searchDistanceBetweenCities(struct nodeCity *root);
 // [9] Update City Description
 void updateCityDescription();
 
+// [10] Radius Search Function
+double haversine(double lat1, double lon1, double lat2, double lon2);
+void findCitiesWithinRadius(struct nodeCity *root, double lat, double lon, double radius);
+void searchCitiesByRadius(struct nodeCity *root);
+
 /* Main Function */
 void main()
 {
-    printf("Welcome! Press any key to continue and discover your OS...\n");
-
-#ifdef _WIN32
-    _getch(); // Use _getch() for Windows
-    printf("You are using Windows.\n\n\n");
-    utilPressAnyKey();
-#else
-    getch(); // Use custom getch() for Unix-like systems
-        printf("You are not using Windows.\n\n\n");
-        utilPressAnyKey();
-#endif
-
-
     openData();
     int choice;
     char menu = '\0';
@@ -164,6 +138,7 @@ void main()
                     printf("Delete a city\n");
                     printf("Find distance of two cities\n");
                     printf("View cities based on continent\n");
+                    printf("Find cities within radius\n");
                     printf("Edit a city\n");
                     printf("Exit\n");
                     printf(blu);
@@ -182,6 +157,7 @@ void main()
                     printf("Delete a city\n");
                     printf("Find distance of two cities\n");
                     printf("View cities based on continent\n");
+                    printf("Find cities within radius\n");
                     printf("Edit a city\n");
                     printf("Exit\n");
                     printf(blu);
@@ -200,6 +176,7 @@ void main()
                     printf("Delete a city\n");
                     printf("Find distance of two cities\n");
                     printf("View cities based on continent\n");
+                    printf("Find cities within radius\n");
                     printf("Edit a city\n");
                     printf("Exit\n");
                     printf(blu);
@@ -218,6 +195,7 @@ void main()
                     printf(grn"  > Delete a city\n"reset);
                     printf("Find distance of two cities\n");
                     printf("View cities based on continent\n");
+                    printf("Find cities within radius\n");
                     printf("Edit a city\n");
                     printf("Exit\n");
                     printf(blu);
@@ -236,6 +214,7 @@ void main()
                     printf("Delete a city\n");
                     printf(grn"  > Find distance of two cities\n"reset);
                     printf("View cities based on continent\n");
+                    printf("Find cities within radius\n");
                     printf("Edit a city\n");
                     printf("Exit\n");
                     printf(blu);
@@ -254,6 +233,7 @@ void main()
                     printf("Delete a city\n");
                     printf("Find distance of two cities\n"reset);
                     printf(grn"  > View cities based on continent\n"reset);
+                    printf("Find cities within radius\n");
                     printf("Edit a city\n");
                     printf("Exit\n");
                     printf(blu);
@@ -272,7 +252,8 @@ void main()
                     printf("Delete a city\n");
                     printf("Find distance of two cities\n"reset);
                     printf("View cities based on continent\n"reset);
-                    printf(grn"  > Edit a city\n"reset);
+                    printf(grn"  > Find cities within radius\n"reset);
+                    printf("Edit a city\n");
                     printf("Exit\n");
                     printf(blu);
                     printf("-----------------------------------\n"); printf(reset);
@@ -290,6 +271,26 @@ void main()
                     printf("Delete a city\n");
                     printf("Find distance of two cities\n"reset);
                     printf("View cities based on continent\n"reset);
+                    printf("Find cities within radius\n"reset);
+                    printf(grn"  > Edit a city\n"reset);
+                    printf("Exit\n");
+                    printf(blu);
+                    printf("-----------------------------------\n"); printf(reset);
+                    printf(yel"\n\nNote : Use Arrow Key to navigate or WASD\n"); printf(reset);
+                    break;
+                }
+                case 9:
+                {
+                    printf("\nWelcome to GeoGraphIndex Program\n");
+                    printf(blu);
+                    printf("-----------------------------------\n"); printf(reset);
+                    printf("Add a city\n");
+                    printf("View all cities\n");
+                    printf("Find a city\n");
+                    printf("Delete a city\n");
+                    printf("Find distance of two cities\n"reset);
+                    printf("View cities based on continent\n"reset);
+                    printf("Find cities within radius\n"reset);
                     printf("Edit a city\n"reset);
                     printf(red"Exit\n"reset);
                     printf(blu);
@@ -305,13 +306,13 @@ void main()
                 index--;
                 if(index < 1)
                 {
-                    index = 8;
+                    index = 9;
                 }
             }
             else if(menu == 80 || menu == 's' || menu == 'S') //DOWN
             {
                 index++;
-                if(index > 8)
+                if(index > 9)
                 {
                     index = 1;
                 }
@@ -339,26 +340,30 @@ void main()
                 break;
             case 5:
                 searchDistanceBetweenCities(rootByCity);
+                utilPressAnyKey();
                 break;
             case 6:
                 printContinent(continentList);
                 break;
             case 7:
-                updateCityDescription();
+                searchCitiesByRadius(rootByCity);
                 break;
             case 8:
+                updateCityDescription();
+                break;
+            case 9:
                 saveDataCity();
                 saveDataCoor();
+                utilPressAnyKey();
                 break;
             default:
                 printf("Invalid input!\n");
                 break;
         }
 
-        utilPressAnyKey();
+
         system("cls");
-        //printf("\e[1;1H\e[2J");
-    } while (index != 8);
+    } while (index != 9);
     return;
 }
 
@@ -559,15 +564,15 @@ void insertMenu() {
     } while (coorNode != NULL);
 
 
-    printf("Input Continent :\n");
-    printf(yel"1. North America\n"reset);
+    printf(yel"\n\nInput Continent :\n"reset);
+    printf("1. North America\n");
     printf("2. South America\n");
     printf("3. Europe\n");
     printf("4. Africa\n");
     printf("5. Asia\n");
     printf("6. Australia\n");
     printf("7. Antartica\n");
-    printf("Input >> ");
+    printf(yel"Input >> "reset);
     do {
         scanf("%d", &continentIndex);
         getchar();
@@ -661,27 +666,60 @@ void sortMenu() {
         inOrderTraversal(rootByCoor, cities, &indexinorder);
     }
 
-    // Calculate maxPage for pagination
-    maxPage = (NumberOfCities + 19) / 20 - 1;
-
-    // Page navigation
-    fflush(stdin);
-    do {
+    menu = '\0', select= '\0';
+     do {
+        system("cls");
+        printf("%s========%s View and sort all cities %s========%s\n\n", blu, reset, blu, reset);
         if (index == 1) {
-            displayPage(cities, currentPage * 20, NumberOfCities);
+            printf(grn"    > Ascending\n"reset);
+            printf("Descending\n\n");
         } else {
-            displayPageDescending(cities, currentPage * 20, NumberOfCities);
+            printf("Ascending\n");
+            printf(grn"    > Descending\n\n"reset);
         }
 
-        select = _getch(); // Use _getch() for consistency
-        if(select == 72 || select == 'W' || select == 'w') {
-            currentPage = (currentPage > 0) ? currentPage - 1 : 0;
-        } else if(select == 80 || select == 'S' || select == 's') {
-            currentPage = (currentPage < maxPage) ? currentPage + 1 : maxPage;
+        menu = _getch();
+        if(menu == 72 || menu == 'w' || menu == 'W') // UP
+        {
+            index--;
+            if(index < 1)
+            {
+                index = 1;
+            }
         }
-    } while(select != '\r');
+        else if(menu == 80 || menu == 's' || menu == 'S')
+        { // DOWN
+            index++;
+            if(index > 2)
+            {
+                index = 2;
+            }
+        }
+    } while (menu != '\r');
 
+
+        // Calculate maxPage for pagination
+        maxPage = (NumberOfCities + 19) / 20 - 1;
+
+        // Page navigation
+        fflush(stdin);
+        do {
+            if (index == 1) {
+                displayPage(cities, currentPage * 20, NumberOfCities);
+            } else {
+                displayPageDescending(cities, currentPage * 20, NumberOfCities);
+            }
+
+            select = _getch(); // Use _getch() for consistency
+            if(select == 72 || select == 'W' || select == 'w') {
+                currentPage = (currentPage > 0) ? currentPage - 1 : 0;
+            } else if(select == 80 || select == 'S' || select == 's') {
+                currentPage = (currentPage < maxPage) ? currentPage + 1 : maxPage;
+            }
+        } while(select != '\r');
 }
+
+
 
 
 
@@ -695,10 +733,10 @@ void displayPage(struct nodeCity** cities, int startIndex, int totalCities) {
         else
             printf("| %-30s | %-26.26s.... | %-20.6f | %-20.6f | %-20s |\n", cities[i]->cityName, cities[i]->cityDescription, cities[i]->cityLat, cities[i]->cityLon, getContinentName(cities[i]->continentIndex));
 
-
+		for (int i = 0; i < 136; i++) printf("-");
         printf("\n");
     }
-    for (int i = 0; i < 136; i++) printf("-");
+
     printf("\n\n");
     printf(yel"Displaying %d - %d out of %d\n"reset, startIndex + 1, endIndex, totalCities);
     printf(blu"\n\n [W / ^] Previous  [S / v] Next  [enter] Back to main menu\n"reset);
@@ -720,7 +758,7 @@ void displayPageDescending(struct nodeCity** cities, int startIndex, int totalCi
         else
             printf("| %-30s | %-26.26s.... | %-20.6f | %-20.6f | %-20s |\n", cities[i]->cityName, cities[i]->cityDescription, cities[i]->cityLat, cities[i]->cityLon, getContinentName(cities[i]->continentIndex));
 
-        for (int j = 0; j < 126; j++) printf("-");
+        for (int j = 0; j < 136; j++) printf("-");
         printf("\n");
     }
     // Adjust the displayed range of cities to match the descending order
@@ -782,11 +820,12 @@ void prefix(struct nodeCity *root, char pref[]) {
             }
             // Print city information with formatting based on description length
             if (strlen(root->cityDescription) <= 30)
-                printf("|%-30s|%-30s |%-20.6f |%-20.6f |%-20s|\n", root->cityName, root->cityDescription, root->cityLat, root->cityLon, getContinentName(root->continentIndex));
+                printf("| %-30s | %-30s | %-20.6f | %-20.6f | %-20s |\n", root->cityName, root->cityDescription, root->cityLat, root->cityLon, getContinentName(root->continentIndex));
             else
-                printf("|%-30s|%-26.26s....|%-20.6f| %-20.6f|%-20s|\n", root->cityName, root->cityDescription, root->cityLat, root->cityLon, getContinentName(root->continentIndex));
+                printf("| %-30s | %-26.26s.... | %-20.6f | %-20.6f | %-20s |\n", root->cityName, root->cityDescription, root->cityLat, root->cityLon, getContinentName(root->continentIndex));
 
-            printf("------------------------------------------------------------------------------------------------------------------------------\n");
+            for (int i=0; i<136; i++) printf("-");
+            printf("\n");
         }
         prefix(root->right, pref);
     }
@@ -805,15 +844,15 @@ void displayCityDetails(struct nodeCity* city) {
     if (city == NULL) {
         printf("City not found!\n");
     } else {
-        printf("City Found!\n");
-        printf("===========================\n");
+        printf(yel"City Found!\n"reset);
+        printf(mag"===========================\n"reset);
         printf("City Name : %s\n", city->cityName);
         printf("City Description :\n");
         printf("%s\n", city->cityDescription);
         printf("Latitude : %lf\n", city->cityLat);
         printf("Longitude : %lf\n", city->cityLon);
         printf("Continent : %s\n", getContinentName(city->continentIndex));
-        printf("===========================\n");
+        printf(mag"===========================\n"reset);
     }
 }
 
@@ -823,7 +862,7 @@ struct nodeCity *searchCityMenu() {
     prefixCount = 0;
     do {
         system("cls");
-        printf("%s=======%s view worker %s=======\n\n%s", blu, reset, blu, reset);
+        printf("%s=======%s Find a city %s=======\n\n%s", blu, reset, blu, reset);
         printf(yel);
         recentSearch();
         printf("Input a prefix to be searched: %s\n", pref);
@@ -879,8 +918,10 @@ void searchMenu(struct nodeCity *root) {
     int choice;
     char key[30];
     double lat, lon;
-    printf("===== Find a city =====\n\n");
-    printf("Search based on?\n1. City name\n2. Coordinates\n\nInput>> ");
+    printf("%s=====%s Find a city %s=====%s\n\n", blu, reset, blu, reset);
+    printf(yel"Search based on?\n"reset);
+	printf("1. City name\n2. Coordinates\n\n");
+	printf(mag"Input>> "reset);
     do {
         scanf("%d", &choice);
         getchar();
@@ -1033,7 +1074,7 @@ void deleteMenu() {
     double lat, lon;
 
     printf("%s=====%s Delete a city %s=====%s\n\n", blu, reset, blu, reset);
-    printf("%sDelete based on?%s\n1. City name\n2. Coordinates\n\n%sInput>>%s ", yel, reset, yel, reset);
+    printf("%sDelete based on?%s\n1. City name\n2. Coordinates\n\n%sInput>>%s ", yel, reset, mag, reset);
     do {
         scanf("%d", &choice);
         getchar();
@@ -1061,7 +1102,7 @@ void deleteMenu() {
             printf(red"Invalid choice!\n\n"reset);
     }
     NumberOfCities--;
-    printf(yel"City successfully deleted!\n"reset);
+    printf(yel"\n\nCity successfully deleted!\n"reset);
     utilPressAnyKey();
 }
 
@@ -1082,6 +1123,8 @@ int pushNodeContinent(struct nodeContinent **head, const char *cityName, const c
 };
 
 void printContinent(struct nodeContinent *continentList[]) {
+	system("cls");
+    printf("%s=====%s View cities in a continent %s=====%s\n\n", blu, reset, blu, reset);
     int continentIndex;
     const char *continentNames[] = {"North America", "South America", "Europe", "Africa", "Asia", "Australia", "Antarctica"};
 
@@ -1095,15 +1138,17 @@ void printContinent(struct nodeContinent *continentList[]) {
 
     if (continentIndex < 1 || continentIndex > 7) {
         printf(red"Invalid continent index!\n"reset);
+        utilPressAnyKey();
         return;
     }
-
-    printf("Cities in %s:\n\n", continentNames[continentIndex - 1]);
+    system("cls");
+    printf("%s=====%s View cities in a continent %s=====%s\n\n", blu, reset, blu, reset);
+    printf(mag"\n\nCities in %s:\n\n"reset, continentNames[continentIndex - 1]);
 
     // Print table header
     for (int i = 0; i < 103; i++) printf("-");
     printf("\n");
-    printf("| %-30s | %-30s | %-15s | %-15s |\n", "City Name", "City Description", "Latitude", "Longitude");
+    printf("| %-30s | %-30s | %-15s | %-15s |\n", "City Name", "City Description","Latitude","Longitude");
     for (int i = 0; i < 103; i++) printf("-");
     printf("\n");
 
@@ -1124,7 +1169,7 @@ void printContinent(struct nodeContinent *continentList[]) {
 
 // [6] Utility Function
 void utilPressAnyKey() {
-    printf(yel"Press any key to continue..."reset);
+    printf(yel"\n\nPress Enter to continue..."reset);
     getchar();
     system("cls");
 };
@@ -1179,7 +1224,7 @@ void saveDataCity() {
     }
     writeAvlToFile(rootByCoor, fp);
     fclose(fp);
-    printf(yel"City AVL Tree Saved\n"reset);
+    printf(yel"\n\nCity AVL Tree Saved\n"reset);
 };
 
 void saveDataCoor() {
@@ -1209,9 +1254,10 @@ double distanceCheck(double lat1, double lon1, double lat2, double lon2) {
 }
 
 void searchDistanceBetweenCities(struct nodeCity *root) {
+    system("cls");
     char city1[35], city2[35];
     printf("%s======%s Search the distance between two cities %s=====%s\n", blu, reset, blu, reset);
-    printf(yel"Note: the distance is in kilometres.\n\n"reset);
+    printf(yel"\n\nNote: the distance is in kilometres.\n\n"reset);
 
     struct nodeCity *curr1, *curr2;
 
@@ -1237,7 +1283,7 @@ void searchDistanceBetweenCities(struct nodeCity *root) {
 
     // Calculate and display the distance
     double result = distanceCheck(curr1->cityLat, curr1->cityLon, curr2->cityLat, curr2->cityLon);
-    printf("The distance between %s and %s is %.2lf kilometers.\n\n", curr1->cityName, curr2->cityName, result);
+    printf("\nThe distance between %s and %s is %.2lf kilometers.\n\n", curr1->cityName, curr2->cityName, result);
 }
 
 // [9] Update City Description
@@ -1253,7 +1299,7 @@ void updateCityDescription() {
             return;
         }
 
-        printf("\nEnter new description for %s: ", cityByName->cityName);
+        printf("%s \nEnter new description for %s: %s", yel,cityByName->cityName,reset);
         char newDescription[100];
         fgets(newDescription, sizeof(newDescription), stdin);
         size_t len = strlen(newDescription);
@@ -1267,6 +1313,55 @@ void updateCityDescription() {
         strncpy(cityByCoor->cityDescription, newDescription, sizeof(cityByCoor->cityDescription) - 1);
         cityByCoor->cityDescription[sizeof(cityByCoor->cityDescription) - 1] = '\0';
 
-        printf("City description updated successfully!\n");
+        printf("\nCity description updated successfully!\n");
+        utilPressAnyKey();
     }
+}
+
+// [10] Radius Search Function
+double haversine(double lat1, double lon1, double lat2, double lon2) {
+    double dlat = deg2rad(lat2 - lat1);
+    double dlon = deg2rad(lon2 - lon1);
+
+    double a = sin(dlat / 2) * sin(dlat / 2) +
+               cos(deg2rad(lat1)) * cos(deg2rad(lat2)) *
+               sin(dlon / 2) * sin(dlon / 2);
+    double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+
+    return EARTH_RADIUS * c;
+}
+
+void findCitiesWithinRadius(struct nodeCity *root, double lat, double lon, double radius) {
+    if (root == NULL) {
+        return;
+    }
+
+    // Calculate the distance from the given point to the current city
+    double distance = haversine(lat, lon, root->cityLat, root->cityLon);
+
+    // If the distance is within the specified radius, print the city
+    if (distance <= radius) {
+        printf("City: %s, Distance: %.2f km\n", root->cityName, distance);
+    }
+
+    // Recursively search in the left and right subtrees
+    findCitiesWithinRadius(root->left, lat, lon, radius);
+    findCitiesWithinRadius(root->right, lat, lon, radius);
+}
+
+void searchCitiesByRadius(struct nodeCity *root) {
+    double lat, lon, radius;
+
+    // Get user input for latitude, longitude, and radius
+    printf("Enter latitude: ");
+    scanf("%lf", &lat);
+    printf("Enter longitude: ");
+    scanf("%lf", &lon);
+    printf("Enter radius (in km): ");
+    scanf("%lf", &radius);
+
+    // Find and print cities within the specified radius
+    findCitiesWithinRadius(root, lat, lon, radius);
+    getchar();
+    utilPressAnyKey();
 }
