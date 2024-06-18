@@ -872,6 +872,7 @@ struct nodeCity *searchCityMenu() {
         printf("%s=======%s Find a city %s=======\n\n%s", blu, reset, blu, reset);
         printf(yel);
         recentSearch();
+        printf("\nNote: press enter after typing the full city name\n\n");
         printf("Input a prefix to be searched: %s\n", pref);
         printf(reset);
 
@@ -902,12 +903,15 @@ struct nodeCity *searchCityMenu() {
 }
 
 void searchCoorMenu() {
+	system("cls");
+	printf("%s=====%s Find a city %s=====%s\n\n", blu, reset, blu, reset);
     double lat, lon;
     recentSearch();
-    printf("Enter Latitude: ");
+    printf("\n");
+    printf(yel"Enter Latitude: "reset);
     scanf("%lf", &lat);
     getchar();
-    printf("Enter Longitude: ");
+    printf(yel"Enter Longitude: "reset);
     scanf("%lf", &lon);
     getchar();
 
@@ -915,6 +919,7 @@ void searchCoorMenu() {
     if (curr == NULL) {
         printf("City not found!\n");
     } else {
+    	system("cls");
         displayCityDetails(curr);
     }
 }
@@ -1090,7 +1095,7 @@ void deleteMenu() {
 
     switch (choice) {
         case 1:
-            printf(yel"Enter a city name to delete: "reset);
+            printf(yel"\n\n\nEnter a city name to delete: "reset);
             scanf("%29[^\n]", cityName);
             getchar();
             struct nodeCity *nodeByName = search(rootByCity, cityName);
@@ -1104,7 +1109,7 @@ void deleteMenu() {
             }
             break;
         case 2:
-            printf(yel"Enter Latitude: "reset);
+            printf(yel"\n\n\nEnter Latitude: "reset);
             scanf("%lf", &lat);
             getchar();
             printf(yel"Enter Longitude: "reset);
@@ -1362,7 +1367,8 @@ void findCitiesWithinRadius(struct nodeCity *root, double lat, double lon, doubl
 
     // If the distance is within the specified radius, print the city
     if (distance <= radius) {
-        printf("City: %s, Distance: %.2f km\n", root->cityName, distance);
+
+        printf("%sCity:%s %s, %sDistance:%s %.2f km\n", mag,reset, root->cityName, mag,reset, distance);
     }
 
     // Recursively search in the left and right subtrees
@@ -1371,14 +1377,17 @@ void findCitiesWithinRadius(struct nodeCity *root, double lat, double lon, doubl
 }
 
 void searchCitiesByRadius(struct nodeCity *root) {
+	system("cls");
+	printf("%s=====%s Find cities within radius %s=====%s\n\n", blu, reset, blu, reset);
+
     double lat, lon, radius;
 
     // Get user input for latitude, longitude, and radius
-    printf("Enter latitude: ");
+    printf(yel"Enter latitude: "reset);
     scanf("%lf", &lat);
-    printf("Enter longitude: ");
+    printf(yel"Enter longitude: "reset);
     scanf("%lf", &lon);
-    printf("Enter radius (in km): ");
+    printf(yel"Enter radius (in km): "reset);
     scanf("%lf", &radius);
 
     // Find and print cities within the specified radius
