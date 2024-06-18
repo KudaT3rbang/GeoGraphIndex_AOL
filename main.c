@@ -1132,7 +1132,6 @@ void deleteMenu() {
         default:
             printf(red"Invalid choice!\n\n"reset);
     }
-    NumberOfCities--;
     utilPressAnyKey();
 }
 
