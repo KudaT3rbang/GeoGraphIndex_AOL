@@ -30,9 +30,8 @@
 55.755825,37.617298,Moscow,Home to the Kremlin,3
 36.778259,-119.417931,San Francisco,Home to the Golden Gate Bridge,1
 -22.906847,-43.172897,Rio de Janeiro,City with the Christ the Redeemer statue,2
-48.856613,2.352222,Paris,City of Light and Eiffel Tower,3
-28.538336,-81.379234,Orlando,Home to Walt Disney World,1
 -31.950527,115.860457,Perth,City known for its beaches and sunshine,6
+28.538336,-81.379234,Orlando,Home to Walt Disney World,1
 32.715736,-117.161087,San Diego,City with beautiful coastlines,1
 41.902782,12.496366,Rome,Home to the Colosseum,3
 47.606209,-122.332069,Seattle,City with the Space Needle,1

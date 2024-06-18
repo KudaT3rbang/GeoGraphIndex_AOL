@@ -40,9 +40,8 @@
 45.465422,9.185924,Milan,City known for fashion and design,3
 41.902782,12.496366,Rome,Home to the Colosseum,3
 51.507351,-0.127758,London,Home of the Big Ben,3
-48.856613,2.352222,Paris,City of Light and Eiffel Tower,3
-47.606209,-122.332069,Seattle,City with the Space Needle,1
 49.282729,-123.120738,Vancouver,City surrounded by mountains and ocean,1
+47.606209,-122.332069,Seattle,City with the Space Needle,1
 55.755825,37.617298,Moscow,Home to the Kremlin,3
 52.229676,21.012229,Warsaw,City with a resilient history,3
 59.329323,18.068581,Stockholm,City spread across 14 islands,3

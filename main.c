@@ -44,6 +44,7 @@ struct nodeContinent *continentList[7] = { 0 };
 
 int NumberOfCities=0; //untuk track total city
 int prefixCount=0;
+char recentSearchCityName[30];
 
 /* Function Declaration */
 // [1] Function For AVL Tree
@@ -841,9 +842,12 @@ void prefix(struct nodeCity *root, char pref[]) {
 void recentSearch() {
     if(recentlySearch == NULL) {
         return;
-    } else {
+    } else if(strcmp(recentlySearch->cityName, recentSearchCityName) == 0) {
         printf("Recent Search %s (%f, %f)\n", recentlySearch->cityName, recentlySearch->cityLat, recentlySearch->cityLon);
-    }
+        strcpy(recentSearchCityName, recentlySearch->cityName);
+    } else {
+    	return;
+	}
 };
 
 void displayCityDetails(struct nodeCity* city) {
@@ -1100,8 +1104,8 @@ void deleteMenu() {
             getchar();
             struct nodeCity *nodeByName = search(rootByCity, cityName);
             if (nodeByName) {
-                rootByCity = deleteNodeByCity(rootByCity, cityName);
-                rootByCoor = deleteNodeByCoor(rootByCoor, nodeByName->cityLat, nodeByName->cityLon);
+            	deleteNodeByCoor(rootByCoor, nodeByName->cityLat, nodeByName->cityLon);
+                deleteNodeByCity(rootByCity, cityName);
                 NumberOfCities--;
                 printf(yel"\n\nCity successfully deleted!\n"reset);
             } else {
@@ -1117,8 +1121,8 @@ void deleteMenu() {
             getchar();
             struct nodeCity *nodeByCoor = searchCoor(rootByCoor, lat, lon);
             if (nodeByCoor) {
-                rootByCoor = deleteNodeByCoor(rootByCoor, lat, lon);
-                rootByCity = deleteNodeByCity(rootByCity, nodeByCoor->cityName);
+            	deleteNodeByCity(rootByCity, nodeByCoor->cityName);
+                deleteNodeByCoor(rootByCoor, lat, lon);
                 NumberOfCities--;
                 printf(yel"\n\nCity successfully deleted!\n"reset);
             } else {
